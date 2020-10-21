@@ -42,33 +42,154 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final _formKey = GlobalKey<FormState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Please enter some text';
-                  }
-                  return null;
-                },
+        child: Padding(
+          padding: EdgeInsets.all(8),
+          child: Form(
+            key: _formKey,
+            child: Container(
+              width: double.infinity,
+              child: ListView(
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Amount: ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Card Number: ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Expiry Date: ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'CVV: ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Address: ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Post Code: ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState.validate()) {
+                        _scaffoldKey.currentState
+                          ..showSnackBar(
+                              SnackBar(content: Text('Processing Data')));
+                      }
+                    },
+                    child: Text('Submit'),
+                  )
+                ],
               ),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState.validate()) {
-                    Scaffold.of(context).showSnackBar(
-                        SnackBar(content: Text('Processing Data')));
-                  }
-                },
-                child: Text('Submit'),
-              )
-            ],
+            ),
           ),
         ),
       ),

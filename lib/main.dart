@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_cardstream_demo/models/payment_info.dart';
 import 'package:flutter_cardstream_demo/pages/result.dart';
 
@@ -48,6 +49,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
   PaymentInfo paymentInfo = PaymentInfo();
 
+  String _result = 'Unknown status';
+
+  static const platform =
+      const MethodChannel('flutter_cardstream_demo.smj.xyz/payment');
+
+  Future<void> _makePayment() async {
+    String result;
+
+    try {
+      final String res = await platform.invokeMethod('makePayment');
+      result = 'Payment status $res';
+    } on PlatformException catch (e) {
+      result = 'Failed to make payment: ${e.message}';
+    }
+
+    setState(() {
+      _result = result;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,6 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: double.infinity,
               child: ListView(
                 children: [
+                  Text(_result),
                   Row(
                     children: [
                       Text(
@@ -213,14 +235,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         //       SnackBar(content: Text('Processing Data')));
                         _formKey.currentState.save();
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Result(
-                              paymentInfo: this.paymentInfo,
-                            ),
-                          ),
-                        );
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => Result(
+                        //       paymentInfo: this.paymentInfo,
+                        //     ),
+                        //   ),
+                        // );
+                        _makePayment();
                       }
                     },
                     child: Text('Submit'),

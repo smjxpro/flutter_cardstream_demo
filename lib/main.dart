@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cardstream_demo/models/payment_info.dart';
+import 'package:flutter_cardstream_demo/pages/result.dart';
 
 void main() {
   runApp(MyApp());
@@ -44,6 +46,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  PaymentInfo paymentInfo = PaymentInfo();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,11 +71,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       Expanded(
                         child: TextFormField(
+                          keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value.isEmpty) {
-                              return 'Please enter some text';
+                              return 'Please enter amount';
                             }
                             return null;
+                          },
+                          onSaved: (value) {
+                            paymentInfo.amount = value;
                           },
                         ),
                       ),
@@ -87,11 +95,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       Expanded(
                         child: TextFormField(
+                          keyboardType: TextInputType.text,
                           validator: (value) {
                             if (value.isEmpty) {
-                              return 'Please enter some text';
+                              return 'Please enter card number';
                             }
                             return null;
+                          },
+                          onSaved: (value) {
+                            paymentInfo.cardNumber = value;
                           },
                         ),
                       ),
@@ -107,11 +119,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       Expanded(
                         child: TextFormField(
+                          keyboardType: TextInputType.datetime,
                           validator: (value) {
                             if (value.isEmpty) {
-                              return 'Please enter some text';
+                              return 'Please enter expiry date';
                             }
                             return null;
+                          },
+                          onSaved: (value) {
+                            paymentInfo.cardExpiryDate = value;
                           },
                         ),
                       ),
@@ -127,11 +143,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       Expanded(
                         child: TextFormField(
+                          keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value.isEmpty) {
-                              return 'Please enter some text';
+                              return 'Please enter CVV';
                             }
                             return null;
+                          },
+                          onSaved: (value) {
+                            paymentInfo.cardCVV = value;
                           },
                         ),
                       ),
@@ -147,11 +167,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       Expanded(
                         child: TextFormField(
+                          keyboardType: TextInputType.streetAddress,
                           validator: (value) {
                             if (value.isEmpty) {
-                              return 'Please enter some text';
+                              return 'Please enter address';
                             }
                             return null;
+                          },
+                          onSaved: (value) {
+                            paymentInfo.customerAddress = value;
                           },
                         ),
                       ),
@@ -167,11 +191,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       Expanded(
                         child: TextFormField(
+                          keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value.isEmpty) {
-                              return 'Please enter some text';
+                              return 'Please enter post code';
                             }
                             return null;
+                          },
+                          onSaved: (value) {
+                            paymentInfo.customerPostCode = value;
                           },
                         ),
                       ),
@@ -180,9 +208,19 @@ class _MyHomePageState extends State<MyHomePage> {
                   ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState.validate()) {
-                        _scaffoldKey.currentState
-                          ..showSnackBar(
-                              SnackBar(content: Text('Processing Data')));
+                        // _scaffoldKey.currentState
+                        //   ..showSnackBar(
+                        //       SnackBar(content: Text('Processing Data')));
+                        _formKey.currentState.save();
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Result(
+                              paymentInfo: this.paymentInfo,
+                            ),
+                          ),
+                        );
                       }
                     },
                     child: Text('Submit'),

@@ -81,6 +81,27 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<dynamic> nativeMethodCallHandler(MethodCall methodCall) async {
+    switch (methodCall.method) {
+      case "getGatewayResponse":
+        setState(() {
+          _result = methodCall.arguments;
+          print(" FROM AND: ${methodCall.arguments}");
+        });
+        break;
+
+      default:
+        print("NOTHING");
+        break;
+    }
+  }
+
+  @override
+  void initState() {
+    platform.setMethodCallHandler(nativeMethodCallHandler);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

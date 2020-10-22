@@ -1,15 +1,21 @@
 package xyz.smj.flutter_cardstream_demo;
 
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
@@ -23,32 +29,40 @@ public class MainActivity extends FlutterActivity {
     static final Gateway gateway = new Gateway(DIRECT_URL, MERCHANT_ID, MERCHANT_SECRET);
     private static final String CHANNEL = "flutter_cardstream_demo.smj.xyz/payment";
 
+    MethodChannel channel;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        channel = new MethodChannel(getFlutterEngine().getDartExecutor().getBinaryMessenger(), CHANNEL);
+    }
+
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         super.configureFlutterEngine(flutterEngine);
 
-        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL)
-                .setMethodCallHandler(
-                        (call, result) -> {
-                            if (call.method.equals("makePayment")) {
-                                Map<String, String> resp = sendPayment(
-                                        call.argument("amount").toString(),
-                                        call.argument("cardNumber").toString(),
-                                        call.argument("cardExpiryDate").toString(),
-                                        call.argument("cardCVV").toString(),
-                                        call.argument("customerAddress").toString(),
-                                        call.argument("customerPostCode").toString()
-                                );
+        channel = new MethodChannel(getFlutterEngine().getDartExecutor().getBinaryMessenger(), CHANNEL);
 
-                                Log.d(TAG, "RESPONSE: " + resp);
-                                result.success(resp);
 
-                            }
-                        }
-                );
+        channel.setMethodCallHandler(
+                (call, result) -> {
+                    if (call.method.equals("makePayment")) {
+                        sendPayment(
+                                call.argument("amount").toString(),
+                                call.argument("cardNumber").toString(),
+                                call.argument("cardExpiryDate").toString(),
+                                call.argument("cardCVV").toString(),
+                                call.argument("customerAddress").toString(),
+                                call.argument("customerPostCode").toString()
+                        );
+
+
+                    }
+                }
+        );
     }
 
-    public Map<String, String> sendPayment(String amount, String cardNumber, String cardExpiryDate, String cardCVV, String customerAddress, String customerPostCode) {
+    public void sendPayment(String amount, String cardNumber, String cardExpiryDate, String cardCVV, String customerAddress, String customerPostCode) {
 
         final HashMap<String, String> request = new HashMap<>();
         final List<Map<String, String>> res = new ArrayList<>();
@@ -90,8 +104,6 @@ public class MainActivity extends FlutterActivity {
                         Log.i(TAG, field + " = " + response.get(field));
                     }
 
-                    res.add(response);
-
                     return response;
 
                 } catch (final Exception e) {
@@ -103,8 +115,6 @@ public class MainActivity extends FlutterActivity {
                     error.put("responseMessage", e.getMessage());
                     error.put("state", e.getClass().getName());
 
-                    res.add(error);
-
                     return error;
 
                 }
@@ -112,13 +122,16 @@ public class MainActivity extends FlutterActivity {
 
             @Override
             protected void onPostExecute(final Map<String, String> response) {
+                Log.d(TAG, "POSTEXEC" + response);
+
+                channel = new MethodChannel(getFlutterEngine().getDartExecutor().getBinaryMessenger(), CHANNEL);
+
+                channel.invokeMethod("getGatewayResponse", response);
+
 
             }
 
         }.execute();
-
-        Log.d(TAG, "SENDPAM " + res.get(0));
-        return res.get(0);
 
 
     }

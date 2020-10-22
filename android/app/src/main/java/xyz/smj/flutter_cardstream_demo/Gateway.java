@@ -1,4 +1,7 @@
-package xyz.smj.flutter_cardstream_demo.cardstream;
+/**
+ * Cardstream Payment Gateway SDK.
+ */
+package xyz.smj.flutter_cardstream_demo;
 
 import android.text.TextUtils;
 

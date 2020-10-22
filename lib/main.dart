@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cardstream_demo/models/payment_info.dart';
@@ -49,19 +51,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
   PaymentInfo paymentInfo = PaymentInfo();
 
-  String _result = 'Unknown status';
+  HashMap<String, dynamic> _result = HashMap();
 
   static const platform =
       const MethodChannel('flutter_cardstream_demo.smj.xyz/payment');
 
   Future<void> _makePayment() async {
-    String result;
+    HashMap<String, dynamic> result;
+
+    HashMap<String, dynamic> args = HashMap();
+
+    args['amount'] = paymentInfo.amount;
+    args['cardNumber'] = paymentInfo.cardNumber;
+    args['cardExpiryDate'] = paymentInfo.cardExpiryDate;
+    args['cardCVV'] = paymentInfo.cardCVV;
+    args['customerAddress'] = paymentInfo.customerAddress;
+    args['customerPostCode'] = paymentInfo.customerPostCode;
 
     try {
-      final String res = await platform.invokeMethod('makePayment');
-      result = 'Payment status $res';
+      final HashMap<String, dynamic> res =
+          await platform.invokeMethod('makePayment', args);
+      result = res;
     } on PlatformException catch (e) {
-      result = 'Failed to make payment: ${e.message}';
+      print(e);
     }
 
     setState(() {
@@ -82,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: double.infinity,
               child: ListView(
                 children: [
-                  Text(_result),
+                  Text(_result.toString()),
                   Row(
                     children: [
                       Text(

@@ -44,8 +44,6 @@ class _MyHomePageState extends State<MyHomePage> {
   static const platform = const MethodChannel('payment');
 
   Future<void> _makePayment() async {
-    Map<String, String> result;
-
     Map<String, String> args = HashMap();
 
     args['amount'] = paymentInfo.amount;
@@ -90,6 +88,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text("CardStream Payment Demo"),
+      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(8),
@@ -99,7 +100,35 @@ class _MyHomePageState extends State<MyHomePage> {
               width: double.infinity,
               child: ListView(
                 children: [
-                  Text(_result != null ? _result["cardScheme"] : ""),
+                  Text(
+                    _result != null
+                        ? "Card Type: " + _result["cardType"]
+                        : "Card Type: " + "",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    _result != null
+                        ? "Card Valid: " + _result["cardNumberValid"]
+                        : "Card Valid: " + "",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    _result != null
+                        ? "Card Issuer: " + _result["cardIssuer"]
+                        : "Card Issuer: " + "",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  // Text(_result != null ? _result.toString() : ""),
+
                   Row(
                     children: [
                       Text(
@@ -134,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       Expanded(
                         child: TextFormField(
-                          keyboardType: TextInputType.text,
+                          keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value.isEmpty) {
                               return 'Please enter card number';
@@ -206,7 +235,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       Expanded(
                         child: TextFormField(
-                          keyboardType: TextInputType.streetAddress,
+                          keyboardType: TextInputType.multiline,
+                          minLines: 3,
+                          maxLines: 3,
                           validator: (value) {
                             if (value.isEmpty) {
                               return 'Please enter address';
@@ -230,7 +261,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       Expanded(
                         child: TextFormField(
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.text,
                           validator: (value) {
                             if (value.isEmpty) {
                               return 'Please enter post code';
@@ -263,9 +294,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         _makePayment();
                       }
                     },
-                    child: Text('Submit'),
+                    child: Text('Pay'),
                   ),
-                  ElevatedButton(onPressed: _makePayment, child: Text('Pay'))
+                  // ElevatedButton(onPressed: _makePayment, child: Text('Pay'))
                 ],
               ),
             ),

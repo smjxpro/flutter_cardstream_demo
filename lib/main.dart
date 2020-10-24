@@ -2,8 +2,8 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_cardstream_demo/models/payment_info.dart';
-import 'package:flutter_cardstream_demo/pages/result.dart';
+
+import 'models/payment_info.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,19 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
@@ -51,15 +39,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   PaymentInfo paymentInfo = PaymentInfo();
 
-  HashMap<String, dynamic> _result = HashMap();
+  var _result;
 
-  static const platform =
-      const MethodChannel('flutter_cardstream_demo.smj.xyz/payment');
+  static const platform = const MethodChannel('payment');
 
   Future<void> _makePayment() async {
-    HashMap<String, dynamic> result;
+    Map<String, String> result;
 
-    HashMap<String, dynamic> args = HashMap();
+    Map<String, String> args = HashMap();
 
     args['amount'] = paymentInfo.amount;
     args['cardNumber'] = paymentInfo.cardNumber;
@@ -69,24 +56,21 @@ class _MyHomePageState extends State<MyHomePage> {
     args['customerPostCode'] = paymentInfo.customerPostCode;
 
     try {
-      final HashMap<String, dynamic> res =
-          await platform.invokeMethod('makePayment', args);
-      result = res;
+      final String res = await platform.invokeMethod('pay', args);
+
+      print(res);
     } on PlatformException catch (e) {
       print(e);
     }
-
-    setState(() {
-      _result = result;
-    });
   }
 
   Future<dynamic> nativeMethodCallHandler(MethodCall methodCall) async {
     switch (methodCall.method) {
-      case "getGatewayResponse":
+      case "show":
+        print(" FROM AND: ${methodCall.arguments.toString()}");
+
         setState(() {
           _result = methodCall.arguments;
-          print(" FROM AND: ${methodCall.arguments}");
         });
         break;
 
@@ -115,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: double.infinity,
               child: ListView(
                 children: [
-                  Text(_result.toString()),
+                  Text(_result != null ? _result["cardScheme"] : ""),
                   Row(
                     children: [
                       Text(
@@ -280,7 +264,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       }
                     },
                     child: Text('Submit'),
-                  )
+                  ),
+                  ElevatedButton(onPressed: _makePayment, child: Text('Pay'))
                 ],
               ),
             ),

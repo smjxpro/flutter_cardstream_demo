@@ -1,7 +1,8 @@
+package com.example.flutter_cardstream_demo.payment;
+
 /**
  * Cardstream Payment Gateway SDK.
  */
-package xyz.smj.flutter_cardstream_demo;
 
 import android.text.TextUtils;
 
@@ -36,25 +37,29 @@ import java.util.TreeMap;
  */
 public class Gateway {
 
+    protected static final int BUFFER_SIZE = 8192;
+
     /**
      * Transaction successful response code
      */
     @SuppressWarnings("unused")
     public static final int RC_SUCCESS = 0;
+
     /**
      * Transaction declined response code
      */
     @SuppressWarnings("unused")
     public static final int RC_DO_NOT_HONOR = 5;
+
     /**
      * Verification successful response code
      */
     @SuppressWarnings("unused")
     public static final int RC_NO_REASON_TO_DECLINE = 85;
+
     @SuppressWarnings("unused")
     public static final int RC_3DS_AUTHENTICATION_REQUIRED = 0x1010A;
-    protected static final int BUFFER_SIZE = 8192;
-    protected static final char[] hexadecimal = "0123456789abcdef".toCharArray();
+
     private static final String[] REMOVE_REQUEST_FIELDS = {
             "directUrl",
             "hostedUrl",
@@ -67,6 +72,7 @@ public class Gateway {
             "signature",
             "state",
     };
+
     private final URL gatewayUrl;
     private final String merchantID;
     private final String merchantSecret;
@@ -129,109 +135,6 @@ public class Gateway {
      */
     public Gateway(final String gatewayUrl, final String merchantID, final String merchantSecret) {
         this(gatewayUrl, merchantID, merchantSecret, null);
-    }
-
-    @NonNull
-    static String buildQueryString(final Map<String, String> data) {
-        try {
-
-            final StringBuilder query = new StringBuilder();
-
-            for (Map.Entry<String, String> e : data.entrySet()) {
-
-                if (query.length() > 0) {
-                    query.append('&');
-                }
-
-                query.append(URLEncoder.encode(e.getKey(), "UTF-8"));
-                query.append("=");
-                query.append(URLEncoder.encode(e.getValue(), "UTF-8"));
-
-            }
-
-            return query.toString()
-                    .replaceAll("(?i)%0D%0A|%0A%0D|%0D", "%0A")
-                    .replaceAll("\\*", "%2A");
-
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @NonNull
-    static Map<String, String> parseQueryString(final String query) {
-        try {
-
-            // based on http://stackoverflow.com/a/13592567
-
-            final Map<String, String> data = new LinkedHashMap<>();
-
-            for (final String pair : query.split("&")) {
-
-                final int index = pair.indexOf("=");
-
-                final String parameter, value;
-
-                if (index > 0) {
-                    parameter = URLDecoder.decode(pair.substring(0, index), "UTF-8");
-                    value = URLDecoder.decode(pair.substring(index + 1), "UTF-8");
-                } else {
-                    parameter = URLDecoder.decode(pair, "UTF-8");
-                    value = null;
-                }
-
-                data.put(parameter, value);
-
-            }
-
-            return data;
-
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @NonNull
-    static String receive(final InputStream in, final int bufferSize) throws IOException {
-
-        final InputStreamReader reader = new InputStreamReader(in);
-        final StringBuilder content = new StringBuilder();
-        final char[] buffer = new char[bufferSize];
-
-        int length = 0;
-
-        while (length != -1) {
-
-            if (length > 0) {
-                content.append(buffer, 0, length);
-            }
-
-            length = reader.read(buffer, 0, bufferSize);
-
-        }
-
-        return content.toString();
-
-    }
-
-    @NonNull
-    static String toHexadecimal(final byte[] data) {
-
-        // based on http://stackoverflow.com/a/9855338
-
-        final char[] s = new char[data.length * 2];
-
-        for (int i = 0; i < data.length; i++) {
-
-            int b = data[i] & 0xFF; // isolate octet
-
-            s[i * 2] = hexadecimal[b >>> 4]; // high four bits
-            s[i * 2 + 1] = hexadecimal[b & 0x0F]; // low four bits
-
-        }
-
-        return new String(s);
-
     }
 
     /**
@@ -664,6 +567,111 @@ public class Gateway {
         final String _value = TextUtils.htmlEncode(value);
 
         return MessageFormat.format("<input type=\"hidden\" name=\"{0}\" value=\"{1}\" />\n", _name, _value);
+
+    }
+
+    @NonNull
+    static String buildQueryString(final Map<String, String> data) {
+        try {
+
+            final StringBuilder query = new StringBuilder();
+
+            for (Map.Entry<String, String> e : data.entrySet()) {
+
+                if (query.length() > 0) {
+                    query.append('&');
+                }
+
+                query.append(URLEncoder.encode(e.getKey(), "UTF-8"));
+                query.append("=");
+                query.append(URLEncoder.encode(e.getValue(), "UTF-8"));
+
+            }
+
+            return query.toString()
+                    .replaceAll("(?i)%0D%0A|%0A%0D|%0D", "%0A")
+                    .replaceAll("\\*", "%2A");
+
+        } catch (final UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @NonNull
+    static Map<String, String> parseQueryString(final String query) {
+        try {
+
+            // based on http://stackoverflow.com/a/13592567
+
+            final Map<String, String> data = new LinkedHashMap<>();
+
+            for (final String pair : query.split("&")) {
+
+                final int index = pair.indexOf("=");
+
+                final String parameter, value;
+
+                if (index > 0) {
+                    parameter = URLDecoder.decode(pair.substring(0, index), "UTF-8");
+                    value = URLDecoder.decode(pair.substring(index + 1), "UTF-8");
+                } else {
+                    parameter = URLDecoder.decode(pair, "UTF-8");
+                    value = null;
+                }
+
+                data.put(parameter, value);
+
+            }
+
+            return data;
+
+        } catch (final UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @NonNull
+    static String receive(final InputStream in, final int bufferSize) throws IOException {
+
+        final InputStreamReader reader = new InputStreamReader(in);
+        final StringBuilder content = new StringBuilder();
+        final char[] buffer = new char[bufferSize];
+
+        int length = 0;
+
+        while (length != -1) {
+
+            if (length > 0) {
+                content.append(buffer, 0, length);
+            }
+
+            length = reader.read(buffer, 0, bufferSize);
+
+        }
+
+        return content.toString();
+
+    }
+
+    protected static final char[] hexadecimal = "0123456789abcdef".toCharArray();
+
+    @NonNull
+    static String toHexadecimal(final byte[] data) {
+
+        // based on http://stackoverflow.com/a/9855338
+
+        final char[] s = new char[data.length * 2];
+
+        for (int i = 0; i < data.length; i++) {
+
+            int b = data[i] & 0xFF; // isolate octet
+
+            s[i * 2] = hexadecimal[b >>> 4]; // high four bits
+            s[i * 2 + 1] = hexadecimal[b & 0x0F]; // low four bits
+
+        }
+
+        return new String(s);
 
     }
 
